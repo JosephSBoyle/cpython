@@ -1990,7 +1990,11 @@ class _ProtocolMeta(ABCMeta):
                 issubclass(instance.__class__, cls)):
             return True
         if cls._is_protocol:
-            if all(hasattr(instance, attr) and
+            # Check if attr is defined on the instance using `attr in dir(instance)`
+            # to avoid triggering possible side-effects in function style properties
+            # (i.e those with @property decorators) that would occur if `hasattr`
+            # were used.
+            if all(attr in dir(instance) and
                     # All *methods* can be blocked by setting them to None.
                     (not callable(getattr(cls, attr, None)) or
                      getattr(instance, attr) is not None)
