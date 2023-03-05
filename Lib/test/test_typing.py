@@ -3058,6 +3058,23 @@ class ProtocolTests(BaseTestCase):
 
         Foo()  # Previously triggered RecursionError
 
+    def test_runtime_checkable_property_side_effects(self):
+        """Test that a method style property isn't executed when
+        checking if a class is an instance of a runtime-checkable
+        protocol class.
+        """
+        @runtime_checkable
+        class P(Protocol):
+            @property
+            def bar(self): pass
+
+        class Foo:
+            @property
+            def bar(self):
+                # Test that this is never reached
+                raise RuntimeError
+
+        self.assertTrue(isinstance(Foo(), P))
 
 class GenericTests(BaseTestCase):
 
